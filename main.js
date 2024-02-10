@@ -8,7 +8,7 @@ const path = require("path");
 const spawner = require("child_process").spawn;
 const app = express();
 const port = process.env.PORT || 3000;
-const categorized_workflow = require("./routes/categorized_workflow");
+const categorized_workflow = require("./categorized_workflow");
 const severity = require("./severity");
 
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
