@@ -5,7 +5,7 @@ const twilio = require("twilio");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-
+const spawner = require('child_process').spawn
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -64,6 +64,7 @@ app.post("/webhook", async (req, res) => {
 
       twiml.message(
         "Thanks for the file! I'll take a look and get back to you."
+        
       );
     } catch (error) {
       console.error("Error: ", error);
@@ -86,3 +87,21 @@ app.listen(port, () => {
   console.log(emergencyContacts);
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+async function Emergency (filepath) {
+  try {
+      const result = await new Promise((res,rej) => {
+        const path = require('path');
+        const scriptPath = path.join(__dirname, 'emergency_Category.py');
+        const process = spawner('python',[scriptPath,filepath])
+          let temp = null
+          process.stdout.on('data',(data) => {
+              temp = data.toString()
+              res(temp)
+          })  
+      })
+      return result        
+  } catch (err) {
+      console.log(new Error(err).message)
+  }    
+}
