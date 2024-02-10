@@ -4,7 +4,6 @@ const { default: axios } = require('axios');
 const twilio = require('twilio');
 
 
-const router = express.Router();
 const GOOGLE_MAPS_API_KEY = "AIzaSyCI7xUVXdKdCUtFQGIT9TbYMQM2GN27gqg"
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
 const authToken = "9fdff760d22717e78193a97de08d78bf";
@@ -12,19 +11,10 @@ const twilioNumber = "+1-415-523-8886";
 
 const client = new twilio(accountSid, authToken);
 
-router.get('/', (req, res) => {
-    console.log("Emergency Part")
-    res.json("hey, lets calculate emergency locations and contact them")
-})
 
 
-router.post('', async (req, res) => {
-    const category=req.body.category
-    console.log('req');
-    console.log(req.body, req.params);
-    //accessing the current location
-    const latitude = req.body.latitude;
-    const longitude = req.body.longitude;
+async function workflow(category,latitude,longitude){
+
     const radius = 1500;
     //workflow for different emergencies
     var places = []
@@ -67,11 +57,9 @@ router.post('', async (req, res) => {
       });
       console.log("Message Promises: ", messagePromises);
       await Promise.all(messagePromises);
-      
+    console.log(locations)
     //getting the first location coordinates of location array
-    let latitude2=req.body.latitude
-    let longitude2=req.body.longitude
+    // let latitude2=req.body.latitude
+    // let longitude2=req.body.longitude
 
-})
-export {latitude2,longitude2}
-module.exports = router
+    }

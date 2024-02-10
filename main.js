@@ -8,6 +8,8 @@ const path = require("path");
 const spawner = require("child_process").spawn;
 const app = express();
 const port = process.env.PORT || 3000;
+const categorized_workflow=require('./routes/categorized_workflow')
+const severity=require('./severity')
 
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
 const authToken = "9fdff760d22717e78193a97de08d78bf";
@@ -52,7 +54,15 @@ app.post("/webhook", async (req, res) => {
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
       const cat = await Emergency(filePath);
+      const { Latitude, Longitude } = (19.123811721399072,72.83604972314649)
       console.log("Category: ", cat);
+      categorized_workflow(cat,Latitude,Longitude)
+      
+      const severeAccident=await severity(filePath)
+      severity(severeAccident)
+
+      const firstAid=await firstAid(filepath)
+      //create a response message
 
       // const analysisResult = analyzeAudioFile(filePath);
 
@@ -130,3 +140,41 @@ async function Emergency(filePath) {
     console.log(new Error(err).message);
   }
 }
+
+async function severity(filePath) {
+  try {
+    const result = await new Promise((res, rej) => {
+      console.log("hello");
+      const process = spawner("python", ["severity.py", filePath]);
+      let temp = null;
+
+      process.stdout.on("data", (data) => {
+        temp = data.toString();
+        res(temp);
+      });
+    });
+    return result;
+  } catch (err) {
+    console.log(new Error(err).message);
+  }
+}
+
+
+async function firstAid(filePath) {
+  try {
+    const result = await new Promise((res, rej) => {
+      console.log("hello");
+      const process = spawner("python", ["first_aid.py", filePath]);
+      let temp = null;
+
+      process.stdout.on("data", (data) => {
+        temp = data.toString();
+        res(temp);
+      });
+    });
+    return result;
+  } catch (err) {
+    console.log(new Error(err).message);
+  }
+}
+
