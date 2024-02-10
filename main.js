@@ -28,6 +28,9 @@ app.post("/webhook", async (req, res) => {
   const mediaUrl = req.body.MediaUrl0;
   const type = req.body.MediaContentType0;
 
+  //encoding according to user input messages
+  // hello: Hi there? How can I help you?
+  // 
   if (incomingMessage === "hello") {
     twiml.message("Hi there! How can I help you?");
 
