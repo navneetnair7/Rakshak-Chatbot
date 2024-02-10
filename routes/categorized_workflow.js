@@ -3,7 +3,7 @@ const spawner = require('child_process').spawn
 const { default: axios } = require('axios');
 const twilio = require('twilio');
 
-const category = "fire"
+
 const router = express.Router();
 const GOOGLE_MAPS_API_KEY = "AIzaSyCI7xUVXdKdCUtFQGIT9TbYMQM2GN27gqg"
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
@@ -19,6 +19,7 @@ router.get('/', (req, res) => {
 
 
 router.post('', async (req, res) => {
+    const category=req.body.category
     console.log('req');
     console.log(req.body, req.params);
     //accessing the current location
