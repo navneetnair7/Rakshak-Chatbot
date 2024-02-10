@@ -30,12 +30,50 @@ app.post("/webhook", async (req, res) => {
 
   //encoding according to user input messages
   // hello: Hi there? How can I help you?
-  // 
+  //
   if (incomingMessage === "hello") {
     twiml.message("Hi there! How can I help you?");
 
     if (emergencyContacts.length == 0) {
       twiml.message("Enter emergency contact numbers");
+    }
+  } else if (mediaUrl && type.split('/')[0] === "image") {
+    try {
+      const response = await axios.get(mediaUrl, {
+        responseType: "arraybuffer",
+        auth: {
+          username: accountSid,
+          password: authToken,
+        },
+      });
+      console.log("Response: ", response.data);
+
+      const fileName = `images/${Date.now()}.${type.split("/")[1]}`;
+      const filePath = path.join(__dirname, fileName);
+      fs.writeFileSync(filePath, response.data);
+      // const cat = await Emergency(filePath);
+      // console.log("Category: ", cat);
+
+      // const analysisResult = analyzeAudioFile(filePath);
+
+      // if (emergencyContacts.length > 0) {
+      //   const messagePromises = emergencyContacts.map((contact) => {
+      //     return client.calls.create({
+      //       url: "https://demo.twilio.com/welcome/voice/",
+      //       from: "+18447174563",
+      //       to: "+91" + contact,
+      //     });
+      //   });
+      //   console.log("Message Promises: ", messagePromises);
+      //   await Promise.all(messagePromises);
+      // }
+
+      twiml.message(
+        "Thanks for the file! I'll take a look and get back to you."
+      );
+    } catch (error) {
+      console.error("Error: ", error);
+      twiml.message("Sorry, I couldn't process the image.");
     }
   } else if (mediaUrl) {
     try {
