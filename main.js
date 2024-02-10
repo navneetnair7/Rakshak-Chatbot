@@ -8,8 +8,8 @@ const path = require("path");
 const spawner = require("child_process").spawn;
 const app = express();
 const port = process.env.PORT || 3000;
-const categorized_workflow=require('./routes/categorized_workflow')
-const severity=require('./severity')
+const categorized_workflow = require("./routes/categorized_workflow");
+const severity = require("./severity");
 
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
 const authToken = "9fdff760d22717e78193a97de08d78bf";
@@ -39,7 +39,7 @@ app.post("/webhook", async (req, res) => {
     if (emergencyContacts.length == 0) {
       twiml.message("Enter emergency contact numbers");
     }
-  } else if (mediaUrl && type.split('/')[0] === "image") {
+  } else if (mediaUrl && type.split("/")[0] === "image") {
     try {
       const response = await axios.get(mediaUrl, {
         responseType: "arraybuffer",
@@ -53,26 +53,18 @@ app.post("/webhook", async (req, res) => {
       const fileName = `images/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
-      // const cat = await Emergency(filePath);
-      // console.log("Category: ", cat);
 
-      // const analysisResult = analyzeAudioFile(filePath);
+      const imageCaption = await analyze_image(filePath);
+      console.log("Image Caption: ", imageCaption);
+      const steps = await firstAid(filePath);
+      console.log("First Aid Steps: ", steps);
 
-      // if (emergencyContacts.length > 0) {
-      //   const messagePromises = emergencyContacts.map((contact) => {
-      //     return client.calls.create({
-      //       url: "https://demo.twilio.com/welcome/voice/",
-      //       from: "+18447174563",
-      //       to: "+91" + contact,
-      //     });
-      //   });
-      //   console.log("Message Promises: ", messagePromises);
-      //   await Promise.all(messagePromises);
-      // }
+      // twiml.message(`Image Caption: ${imageCaption}`);
+      twiml.message(steps);
 
-      twiml.message(
-        "Thanks for the file! I'll take a look and get back to you."
-      );
+      // twiml.message(
+      //   "Thanks for the file! I'll take a look and get back to you."
+      // );
     } catch (error) {
       console.error("Error: ", error);
       twiml.message("Sorry, I couldn't process the image.");
@@ -91,16 +83,18 @@ app.post("/webhook", async (req, res) => {
       const fileName = `uploads/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
-      const cat = await Emergency(filePath);
-      const { Latitude, Longitude } = (19.123811721399072,72.83604972314649)
-      console.log("Category: ", cat);
-      categorized_workflow(cat,Latitude,Longitude)
-      
-      const severeAccident=await severity(filePath)
-      severity(severeAccident)
 
-      const firstAid=await firstAid(filepath)
+      const cat = await Emergency(filePath);
+      const { Latitude, Longitude } = (19.123811721399072, 72.83604972314649);
+      console.log("Category: ", cat);
+      categorized_workflow(cat, Latitude, Longitude);
+
+      const severeAccident = await severity(filePath);
+      severity(severeAccident);
+
+      const firstAid = await firstAid(filepath);
       //create a response message
+      twiml.message(firstAid);
 
       // const analysisResult = analyzeAudioFile(filePath);
 
@@ -197,7 +191,6 @@ async function severity(filePath) {
   }
 }
 
-
 async function firstAid(filePath) {
   try {
     const result = await new Promise((res, rej) => {
@@ -216,3 +209,18 @@ async function firstAid(filePath) {
   }
 }
 
+async function analyze_image(filePath) {
+  try {
+    const result = await new Promise((req, res) => {
+      const process = spawner("python", ["image_to_text.py", filePath]);
+      let temp = null;
+
+      process.stdout.on("data", (data) => {
+        temp = data.toString();
+        res(temp);
+      });
+    });
+  } catch (err) {
+    console.log(new Error(err).message);
+  }
+}
