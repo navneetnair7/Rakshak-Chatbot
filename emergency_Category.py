@@ -5,7 +5,6 @@ from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from langchain.prompts import PromptTemplate
 # from langchain_community.llms import GooglePalm
 from langchain.llms import GooglePalm
-import ffmpeg
 import sys
 
 # print(*sys.argv)
