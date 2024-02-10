@@ -50,6 +50,9 @@ app.post("/webhook", async (req, res) => {
   const mediaUrl = req.body.MediaUrl0;
   const type = req.body.MediaContentType0;
 
+  //encoding according to user input messages
+  // hello: Hi there? How can I help you?
+  // 
   if (incomingMessage === "hello") {
     twiml.message("Hi there! How can I help you?");
   } else if (mediaUrl) {
@@ -65,8 +68,11 @@ app.post("/webhook", async (req, res) => {
       const fileName = `uploads/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
-      const category= await Emergency(filePath)
-      
+      const output= await Emergency(filePath)
+      const category=output[0]
+      const first_aid=output[1]
+      const severity=output[2]
+
       twiml.message(
         "Thanks for the file! I'll take a look and get back to you."
         
@@ -88,13 +94,30 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-async function Emergency (filepath) {
+// async function Emergency (filepath) {
+//   try {
+//       const result = await new Promise((res,rej) => {
+//         const path = require('path');
+//         const scriptPath = path.join(__dirname, 'emergency_Category.py');
+//         const process = spawner('python',[scriptPath,filepath])
+//           let temp = null
+//           process.stdout.on('data',(data) => {
+//               temp = data.toString()
+//               res(temp)
+//           })  
+//       })
+//       return result        
+//   } catch (err) {
+//       console.log(new Error(err).message)
+//   }    
+// }
+
+async function Emergency (filePath) {
   try {
       const result = await new Promise((res,rej) => {
-        const path = require('path');
-        const scriptPath = path.join(__dirname, 'emergency_Category.py');
-        const process = spawner('python',[scriptPath,filepath])
+          const process = spawner('python',['./emergency_Category.py',filePath])
           let temp = null
+
           process.stdout.on('data',(data) => {
               temp = data.toString()
               res(temp)
