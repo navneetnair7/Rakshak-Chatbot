@@ -5,7 +5,7 @@ const twilio = require("twilio");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const spawner = require('child_process').spawn
+const spawner = require("child_process").spawn;
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -22,7 +22,7 @@ let emergencyContacts = [];
 
 app.post("/webhook", async (req, res) => {
   const twiml = new twilio.twiml.MessagingResponse();
-  // console.log(req.body);
+  console.log(req.body);
 
   const incomingMessage = req.body.Body.toLowerCase();
   const mediaUrl = req.body.MediaUrl0;
@@ -43,10 +43,13 @@ app.post("/webhook", async (req, res) => {
           password: authToken,
         },
       });
+      console.log("Response: ", response.data);
 
       const fileName = `uploads/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
+      const cat = await Emergency(filePath);
+      console.log("Category: ", cat);
 
       // const analysisResult = analyzeAudioFile(filePath);
 
@@ -64,18 +67,37 @@ app.post("/webhook", async (req, res) => {
 
       twiml.message(
         "Thanks for the file! I'll take a look and get back to you."
-        
       );
     } catch (error) {
       console.error("Error: ", error);
       twiml.message("Sorry, I couldn't process the image.");
     }
     // console.log("Media URL: ", mediaUrl);
+  } else if (req.body.Latitude && req.body.Longitude) {
+    const { Latitude, Longitude } = req.body;
+    console.log("Latitude: ", Latitude, "Longitude: ", Longitude);
+    // twiml.message("Location received successfully");
+
+    let latitude2 = 19.11736541881868;
+    let longitude2 = 72.83513139220759;
+    let latitude = parseFloat(Latitude);
+    let longitude = parseFloat(Longitude);
+    twiml.message(
+      `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${latitude2},${longitude2}&travelmode=driving`
+    );
+
+    // ("https://www.google.com/maps/dir/?api=1&origin=latitude,longitude&destination=latitude2,longitude2&travelmode=driving");
   } else if (!isNaN(incomingMessage)) {
     emergencyContacts.push(incomingMessage);
     console.log(emergencyContacts);
     twiml.message("Emergency contact added successfully");
   } else {
+    // client.messages.create({
+    //   body: "Test",
+    //   to: "+917021746420",
+    //   from: "+18447174563",
+    // });
+
     twiml.message("Sorry, I don't understand that command.");
   }
 
@@ -88,20 +110,20 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-async function Emergency (filepath) {
+async function Emergency(filePath) {
   try {
-      const result = await new Promise((res,rej) => {
-        const path = require('path');
-        const scriptPath = path.join(__dirname, 'emergency_Category.py');
-        const process = spawner('python',[scriptPath,filepath])
-          let temp = null
-          process.stdout.on('data',(data) => {
-              temp = data.toString()
-              res(temp)
-          })  
-      })
-      return result        
+    const result = await new Promise((res, rej) => {
+      console.log("hello");
+      const process = spawner("python", ["emergency_Category.py", filePath]);
+      let temp = null;
+
+      process.stdout.on("data", (data) => {
+        temp = data.toString();
+        res(temp);
+      });
+    });
+    return result;
   } catch (err) {
-      console.log(new Error(err).message)
-  }    
+    console.log(new Error(err).message);
+  }
 }

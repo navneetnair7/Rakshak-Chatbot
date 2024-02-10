@@ -7,3 +7,4 @@ torch
 transformers
 google-generativeai
 accelerate
+ffmpeg-python
