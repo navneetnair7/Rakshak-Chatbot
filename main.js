@@ -5,12 +5,12 @@ const twilio = require("twilio");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-
+const spawner = require('child_process').spawn
 const app = express();
 const port = process.env.PORT || 3000;
 
-const accountSid = process.env.TWILIO_SID;
-const authToken = process.env.TWILIO_TOKEN;
+const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
+const authToken = "9fdff760d22717e78193a97de08d78bf";
 const twilioNumber = "+1-415-523-8886";
 
 const client = new twilio(accountSid, authToken);
@@ -65,8 +65,11 @@ app.post("/webhook", async (req, res) => {
       const fileName = `uploads/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
+      const category= await Emergency(filePath)
+      
       twiml.message(
         "Thanks for the file! I'll take a look and get back to you."
+        
       );
     } catch (error) {
       console.error("Error: ", error);
@@ -84,3 +87,21 @@ app.post("/webhook", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
+async function Emergency (filepath) {
+  try {
+      const result = await new Promise((res,rej) => {
+        const path = require('path');
+        const scriptPath = path.join(__dirname, 'emergency_Category.py');
+        const process = spawner('python',[scriptPath,filepath])
+          let temp = null
+          process.stdout.on('data',(data) => {
+              temp = data.toString()
+              res(temp)
+          })  
+      })
+      return result        
+  } catch (err) {
+      console.log(new Error(err).message)
+  }    
+}

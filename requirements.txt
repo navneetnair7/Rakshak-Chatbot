@@ -1,0 +1,9 @@
+flask
+flask_cors
+langchain==0.0.335
+langchain-experimental==0.0.25
+pandas 
+torch
+transformers
+google-generativeai
+accelerate
