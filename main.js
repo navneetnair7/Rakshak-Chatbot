@@ -8,8 +8,10 @@ const path = require("path");
 const spawner = require("child_process").spawn;
 const app = express();
 const port = process.env.PORT || 3000;
-const categorized_workflow = require("./categorized_workflow");
-const severity = require("./severity");
+// const categorized_workflow = require("./categorized_workflow");
+// const severity = require("./allocate");
+const getHospital = require("./allocate");
+const workflow = require("./categorized_workflow");
 
 const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
 const authToken = "9fdff760d22717e78193a97de08d78bf";
@@ -21,6 +23,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 let name;
 let emergencyContacts = [];
+let latitude2
+let longitude2
 
 app.post("/webhook", async (req, res) => {
   const twiml = new twilio.twiml.MessagingResponse();
@@ -84,31 +88,45 @@ app.post("/webhook", async (req, res) => {
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
 
-      const cat = await Emergency(filePath);
+      // const {cat, text} = await Emergency(filePath);
+      // const result = await Emergency(filePath);
+      // console.log(result);
+      // const cat = result[0];
+      // const text = result[1];
+      const cat = "Medical";
+      const text =
+        "I have a deep cut on my hand and I am bleeding heavily. I need help.";
       const { Latitude, Longitude } = (19.123811721399072, 72.83604972314649);
+      console.log(text);
       console.log("Category: ", cat);
-      categorized_workflow(cat, Latitude, Longitude);
+      workflow(cat, Latitude, Longitude);
 
-      const severeAccident = await severity(filePath);
-      severity(severeAccident);
+      const severeAccident = await severity(text);
+      const output= getHospital(severeAccident)
+      console.log(output)
+      // const hospital=output.hospital
+      // const latitude2=output.lat
+      // const longitude2=output.lng
+      console.log(hospital);
+      twiml.message("You have been allocated" + hospital);
 
-      const firstAid = await firstAid(filepath);
+      const first_aid = await firstAid(text);
       //create a response message
-      twiml.message(firstAid);
+      twiml.message(first_aid);
 
       // const analysisResult = analyzeAudioFile(filePath);
 
-      if (emergencyContacts.length > 0) {
-        const messagePromises = emergencyContacts.map((contact) => {
-          return client.calls.create({
-            url: "https://demo.twilio.com/welcome/voice/",
-            from: "+18447174563",
-            to: "+91" + contact,
-          });
-        });
-        console.log("Message Promises: ", messagePromises);
-        await Promise.all(messagePromises);
-      }
+      // if (emergencyContacts.length > 0) {
+      //   const messagePromises = emergencyContacts.map((contact) => {
+      //     return client.calls.create({
+      //       url: "https://demo.twilio.com/welcome/voice/",
+      //       from: "+18447174563",
+      //       to: "+91" + contact,
+      //     });
+      //   });
+      //   console.log("Message Promises: ", messagePromises);
+      //   await Promise.all(messagePromises);
+      // }
 
       twiml.message(
         "Thanks for the file! I'll take a look and get back to you."
@@ -123,8 +141,7 @@ app.post("/webhook", async (req, res) => {
     console.log("Latitude: ", Latitude, "Longitude: ", Longitude);
     // twiml.message("Location received successfully");
 
-    let latitude2 = 19.11736541881868;
-    let longitude2 = 72.83513139220759;
+
     let latitude = parseFloat(Latitude);
     let longitude = parseFloat(Longitude);
     twiml.message(
@@ -196,6 +213,7 @@ async function firstAid(filePath) {
     const result = await new Promise((res, rej) => {
       console.log("hello");
       const process = spawner("python", ["first_aid.py", filePath]);
+      console.log("hello2");
       let temp = null;
 
       process.stdout.on("data", (data) => {

@@ -24,4 +24,8 @@ def get_severity(question):
     response=chat.send_message(msg,stream=True)
     return response
 
-print(get_severity(sys.argv[1]))
+# text = get_severity('I am feeling very weak and I am having a lot of pain in my chest. I am also having difficulty in breathing. I am also feeling very dizzy. I think I am having a heart attack. Please help me.')
+# print(text.text)
+text = get_severity(sys.argv[1])
+for x in text:
+    print(x.text)

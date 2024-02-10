@@ -10,7 +10,7 @@ import os
 
 # print(*sys.argv)
 
-print(os.getcwd())
+# print(os.getcwd())
 # print(os.path.dirname)
 
 # print("passes the import stage")
@@ -77,7 +77,7 @@ try:
     # print("Hello,entered here ")
     response = llm(msg)
 
-    print(response)
+    print(response, query)
 except e:
     print(e)
     print("Error")
