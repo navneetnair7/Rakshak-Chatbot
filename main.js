@@ -9,7 +9,6 @@ const path = require("path");
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Twilio credentials
 const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
 const twilioNumber = "+1-415-523-8886";
@@ -63,9 +62,7 @@ app.post("/webhook", async (req, res) => {
         },
       });
 
-      //   const fileType =
-      //   const fileName = `${Date.now()}`;
-      const fileName = `${Date.now()}.${type.split("/")[1]}`;
+      const fileName = `uploads/${Date.now()}.${type.split("/")[1]}`;
       const filePath = path.join(__dirname, fileName);
       fs.writeFileSync(filePath, response.data);
       twiml.message(
