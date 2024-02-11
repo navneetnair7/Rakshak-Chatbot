@@ -77,7 +77,7 @@ try:
     # print("Hello,entered here ")
     response = llm(msg)
 
-    print(response, query)
+    print(response, query['text'])
 except e:
     print(e)
     print("Error")

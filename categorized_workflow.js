@@ -33,13 +33,13 @@ async function workflow(category, latitude, longitude) {
       )
       .then((data) => data.data.results);
   }
-  console.log(locations);
+  // console.log(locations);
 
   //send messages/alerts to emergency organisations
-  let emergencyContacts=["9326227834"]
+  let emergencyContacts=["9326227834", "9167543560"]
   client.messages.create({
     body: `User is in danger, current location: ${latitude},${longitude}`,
-    to: "+917021746420", // Text this number
+    to: "+917498696490", // Text this number
     from: "+18447174563", // From a valid Twilio number
   });
 
@@ -53,7 +53,7 @@ async function workflow(category, latitude, longitude) {
   });
   console.log("Message Promises: ", messagePromises);
   await Promise.all(messagePromises);
-  console.log(locations);
+  // console.log(locations);
   //getting the first location coordinates of location array
   // let latitude2=req.body.latitude
   // let longitude2=req.body.longitude
