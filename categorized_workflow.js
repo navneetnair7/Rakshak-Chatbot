@@ -4,8 +4,8 @@ const { default: axios } = require("axios");
 const twilio = require("twilio");
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyCI7xUVXdKdCUtFQGIT9TbYMQM2GN27gqg";
-const accountSid = "AC85cc74a4a440bfcd82a87af3739e6aad";
-const authToken = "9fdff760d22717e78193a97de08d78bf";
+const accountSid = "ACcd3c77d045b9dd55aa78d8244bb2aa25";
+const authToken = "5b8813a093646ae9a1b4b361ae03c221";
 const twilioNumber = "+1-415-523-8886";
 
 const client = new twilio(accountSid, authToken);
@@ -36,18 +36,18 @@ async function workflow(category, latitude, longitude) {
   // console.log(locations);
 
   //send messages/alerts to emergency organisations
-  let emergencyContacts=["9326227834", "9167543560"]
+  let emergencyContacts = ["9326227834", "9167543560"];
   client.messages.create({
-    body: `User is in danger, current location: ${latitude},${longitude}`,
+    body: `User who has added you as an emergency number is in danger`,
     to: "+917498696490", // Text this number
-    from: "+18447174563", // From a valid Twilio number
+    from: "+17622499859", // From a valid Twilio number
   });
 
   //call emergency contacts
   const messagePromises = emergencyContacts.map((contact) => {
     return client.calls.create({
       url: "https://demo.twilio.com/welcome/voice/",
-      from: "+18447174563",
+      from: "+17622499859",
       to: "+91" + contact,
     });
   });

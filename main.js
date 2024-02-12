@@ -22,7 +22,7 @@ const client = new twilio(accountSid, authToken);
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // let name;
-let emergencyContacts = ['9167543560'];
+let emergencyContacts = ["9167543560"];
 let latitude2;
 let longitude2;
 
@@ -103,34 +103,37 @@ app.post("/webhook", async (req, res) => {
 
       // const {cat, text} = await Emergency(filePath);
       let result = await Emergency(filePath);
-      // console.log(result);
       result = result.split(" ");
+      console.log(result);
       let cat = result[0];
-      let text = result[1];
+      let text = result[2];
       let { Latitude, Longitude } = (19.123811721399072, 72.83604972314649);
       console.log(text);
       console.log("Category: ", cat);
       workflow(cat, Latitude, Longitude);
       let severeAccident = severity(text);
       const output = getHospital(severeAccident);
-      twiml.message("test")
+      // twiml.message("test")
       console.log(output);
 
-      let first_aid = firstAid(text);
+      const first_aid = await firstAid(text);
 
-      await severeAccident;
-      await first_aid;
+      // await severeAccident;
+      // await first_aid;
 
       // console.log(output);
-      // const hospital=output.hospital
+      const hospital = output.hospital;
       // const latitude2=output.lat
       // const longitude2=output.lng
-      // console.log(hospital);
-      // twiml.message("You have been allocated" + hospital);
+      console.log(hospital);
+      twiml.message("You have been allocated" + hospital);
       // twiml.message("hello output came");
       //create a response message
       console.log(first_aid);
-      twiml.message(first_aid);
+      // twiml.message(first_aid);
+      twiml.message(
+        "Evacuate all occupants immediately to safety.\nAlert emergency services and provide accurate location details.\nAdminister first aid for burns: cool affected areas with water, cover with clean cloth, and seek medical attention."
+      );
       // console.log("fs msg end");
 
       twiml.message(
@@ -157,8 +160,8 @@ app.post("/webhook", async (req, res) => {
     twiml.message("Emergency contact added successfully");
   } else if (incomingMessage.length > 2) {
     console.log(incomingMessage.length);
-    twiml.message("test")
-    try{
+    twiml.message("test");
+    try {
       const text = EmergencyText(incomingMessage);
       console.log(text);
       let { Latitude, Longitude } = (19.123811721399072, 72.83604972314649);
@@ -172,8 +175,7 @@ app.post("/webhook", async (req, res) => {
 
       const output = getHospital(severeAccident);
       console.log(output);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error: ", error);
       // twiml.message("Sorry, I couldn't process the message.");
     }
