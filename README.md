@@ -31,8 +31,8 @@ The **Emergency Assistance System** is a responsive platform designed to provide
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/Rakhshak-Chatbot.git
-    cd Rakhshak-Chatbot
+    git clone https://github.com/navneetnair7/Rakshak-Chatbot.git
+    cd Rakshak-Chatbot
     ```
 
 2. Install Python dependencies:
